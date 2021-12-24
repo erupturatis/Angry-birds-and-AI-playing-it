@@ -101,10 +101,13 @@ public class Slingshot : MonoBehaviour
 
     void Shoot()
     {
-        Debug.Log("shoot");
+        //Debug.Log("shoot");
         bird.isKinematic = false;
         Vector3 birdForce = (currentPostion - center.position) * force * -1;
         bird.velocity = birdForce;
+        Bird b = bird.GetComponent<Bird>();
+        b.launched = true;
+
 
         bird = null;
         birdCollider = null;
