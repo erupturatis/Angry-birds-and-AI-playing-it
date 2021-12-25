@@ -25,6 +25,12 @@ public class Slingshot : MonoBehaviour
 
     Collider2D birdCollider;
     Rigidbody2D bird;
+    Rigidbody2D LaunchedBird;
+
+
+    public Level L;
+
+    public int launched = 0;
 
     void Start()
     {
@@ -61,6 +67,11 @@ public class Slingshot : MonoBehaviour
         {
             ResetStrips();
         }
+
+        if(LaunchedBird)
+        {
+            L.resetTimer();
+        }
     }
 
     Vector3 ClampBoundary(Vector3 vector)
@@ -70,13 +81,16 @@ public class Slingshot : MonoBehaviour
     }
 
     void CreateBird() {
-        bird = Instantiate(birdPrefab).GetComponent<Rigidbody2D>();
-        birdCollider = bird.GetComponent<Collider2D>();
-        birdCollider.enabled = false;
+        if (launched < 3)
+        {
+            bird = Instantiate(birdPrefab).GetComponent<Rigidbody2D>();
+            birdCollider = bird.GetComponent<Collider2D>();
+            birdCollider.enabled = false;
 
-        bird.isKinematic = true;
+            bird.isKinematic = true;
 
-        ResetStrips();
+            ResetStrips();
+        }
     }
  
     private void OnMouseUp()
@@ -94,24 +108,28 @@ public class Slingshot : MonoBehaviour
     private void OnMouseDown()
     {
         isMouseDown = true;
-        
-       
-        
     }
 
     void Shoot()
     {
-        //Debug.Log("shoot");
-        bird.isKinematic = false;
-        Vector3 birdForce = (currentPostion - center.position) * force * -1;
-        bird.velocity = birdForce;
-        Bird b = bird.GetComponent<Bird>();
-        b.launched = true;
+        if (L.isMoving == false)
+        {
+            //Debug.Log("shoot");
+            bird.isKinematic = false;
+            Vector3 birdForce = (currentPostion - center.position) * force * -1;
+            bird.velocity = birdForce;
+            Bird b = bird.GetComponent<Bird>();
+            b.launched = true;
 
+            launched += 1;
+            LaunchedBird = bird;
 
-        bird = null;
-        birdCollider = null;
-        Invoke("CreateBird", 2);
+            bird = null;
+            birdCollider = null;
+            Invoke("CreateBird", 2);
+
+            L.resetTimer();
+        }
 
     }
 

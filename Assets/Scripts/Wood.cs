@@ -6,35 +6,37 @@ public class Wood : MonoBehaviour
 {
 
     private int hp = 20;
-    private bool canLoseHp = true;
-    void Start()
+    Level L;
+
+    private void Awake()
     {
-        //print("111ceva");
+        L = gameObject.transform.parent.transform.parent.GetComponent<Level>();
     }
 
-    void Update()
+    void Die()
     {
-        
+        L.AddScore(100);
+        Destroy(gameObject);
     }
-
-    void Switch()
+    private void Update()
     {
-        canLoseHp = !canLoseHp;
+        if (gameObject.GetComponent<Rigidbody2D>().velocity.magnitude > 0)
+        {
+            L.resetTimer();
+        }
     }
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.relativeVelocity.magnitude > hp)
         {
-            Destroy(gameObject);
+            L.AddScore(collision.relativeVelocity.magnitude);
+            Die();
         }
-        else if(canLoseHp == true)
+        else
         {
-            canLoseHp = false;
-            Invoke("Switch", 0.1f);
             hp -= (int)collision.relativeVelocity.magnitude;
-            //print(collision.relativeVelocity.magnitude);
+            L.AddScore(collision.relativeVelocity.magnitude);
         }
-        
+
     }
 }

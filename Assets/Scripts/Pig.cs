@@ -5,25 +5,26 @@ using UnityEngine;
 public class Pig : MonoBehaviour
 {
     private int hp = 10;
-    private bool canLoseHp = true;
-    void Start()
+    Level L;
+
+    private void Awake()
     {
-        //print("111ceva");
+        L = gameObject.transform.parent.transform.parent.GetComponent<Level>();
+        L.pigNumber += 1;
     }
-
-    void Update()
-    {
-
-    }
-
-    void Switch()
-    {
-        canLoseHp = !canLoseHp;
-    }
-
     void Die()
     {
+        L.pigNumber -= 1;
+        L.AddScore(500);
         Destroy(gameObject);
+    }
+
+    private void Update()
+    {
+        if(gameObject.GetComponent<Rigidbody2D>().velocity.magnitude > 0.01)
+        {
+            L.resetTimer();
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -32,12 +33,10 @@ public class Pig : MonoBehaviour
         {
             Die();
         }
-        else if (canLoseHp == canLoseHp)
+        else 
         {
-            canLoseHp = false;
-            Invoke("Switch", 0.1f);
             hp -= (int)collision.relativeVelocity.magnitude;
-            //print(collision.relativeVelocity.magnitude);
+            L.AddScore(collision.relativeVelocity.magnitude);
         }
 
     }
