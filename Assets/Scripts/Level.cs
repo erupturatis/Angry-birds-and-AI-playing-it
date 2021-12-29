@@ -19,12 +19,20 @@ public class Level : MonoBehaviour
 
     public int pigNumber;
 
+    public ShootTHeFuckingBirdAgent S;
+
     void Start()
     {
         Sl.L = GetComponent<Level>();
         //spawn level
         SpawnNext();
     }
+
+    public void GetDecision()
+    {
+        S.RequestDecision();
+    }
+
     public void AddScore(float a)
     {
         if (Sl.launched != 0)
@@ -40,26 +48,26 @@ public class Level : MonoBehaviour
     }
     public void SpawnNext()
     {
+        
         Sl.launched = 0;
+        Sl.launched2 = 0;
+        sc.ResetScore();
         if (CurrentLevel)
         {
             Destroy(CurrentLevel);
         }
+        pigNumber = 0;
         GameObject Lvl = Instantiate(LevelTypes[Random.Range(0, LevelTypes.Length)], transform.position, Quaternion.identity, gameObject.transform);
         CurrentLevel = Lvl;
-       
+        
         resetTimer();
     }
     void Update()
     {
-        //print(isMoving);
         if(timer <=0)
         {
             txt.text = "0";
             isMoving = false;
-
-            //print(pigNumber);
-            //print(Sl.launched);
         }
         else{
             
@@ -67,17 +75,31 @@ public class Level : MonoBehaviour
             timer -= Time.deltaTime;
         }
 
-        if(pigNumber == 0 && timer <=0 && Sl.launched != 0)
+        if(pigNumber <= 0 && timer <=0 && Sl.launched != 0)
         {
-            print("won level");
-            
-            SpawnNext();
-        }
-        if(pigNumber!=0 && timer<= 0 && Sl.launched >=3)
-        {
-            print("lost level");
+            //print("won level");
+            S.AddReward(20);
+            S.AddReward((3 - Sl.launched) * 20);
+            if (Sl.launched < 3)
+            {
+                //print("finished early");
+            }
+            S.EndEpisode();
 
             SpawnNext();
+            
+        }else
+        if(pigNumber!=0 && timer<= 0 && Sl.launched >=3)
+        {
+            //print("lost level");
+            S.AddReward(-20);
+            S.AddReward(-20 * (pigNumber));
+            S.EndEpisode();
+            SpawnNext();
+        }
+        else
+        {
+            //print(pigNumber + "   " + Sl.launched + " " + timer);
         }
     }
 }

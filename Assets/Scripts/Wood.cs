@@ -16,6 +16,7 @@ public class Wood : MonoBehaviour
     void Die()
     {
         L.AddScore(100);
+        L.S.AddReward(1f);
         Destroy(gameObject);
     }
     private void Update()

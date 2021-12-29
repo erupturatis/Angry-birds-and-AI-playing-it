@@ -10,6 +10,7 @@ public class Slingshot : MonoBehaviour
     public Transform idlePosition;
 
     bool isMouseDown;
+    bool canLaunch;
 
     Vector3 currentPostion;
 
@@ -31,6 +32,12 @@ public class Slingshot : MonoBehaviour
     public Level L;
 
     public int launched = 0;
+    public int launched2 = 0;
+
+    public float x1 = 0;
+    public float y1 = 0;
+
+    public float worstcasescen=120f;
 
     void Start()
     {
@@ -45,33 +52,68 @@ public class Slingshot : MonoBehaviour
 
     void Update()
     {
-        if (isMouseDown)
+        worstcasescen -= Time.deltaTime;
+        if(L.isMoving == false && launched == launched2 && L.pigNumber>0)
         {
-            Vector3 mousePosition = Input.mousePosition;
-            mousePosition.z = 10;
-
-            currentPostion = Camera.main.ScreenToWorldPoint(mousePosition);
-            currentPostion = center.position + Vector3.ClampMagnitude(currentPostion -center.position, maxLength);
-
-            currentPostion = ClampBoundary(currentPostion);
-
-            SetStrips(currentPostion);
-
-            if (birdCollider)
-            {
-                birdCollider.enabled = true;
-            }
-
+            canLaunch = true;
         }
-        else
+        if (canLaunch == true || worstcasescen<0f) {
+            L.S.RequestDecision();
+            canLaunch = false;
+            launched2++;
+            worstcasescen = 120f;
+           // print(L.pigNumber);
+        }
+
+        if (0 == 1)
         {
-            ResetStrips();
+            if (isMouseDown)
+            {
+                Vector3 mousePosition = Input.mousePosition;
+                mousePosition.z = 10;
+
+                currentPostion = Camera.main.ScreenToWorldPoint(mousePosition);
+                currentPostion = center.position + Vector3.ClampMagnitude(currentPostion - center.position, maxLength);
+
+                currentPostion = ClampBoundary(currentPostion);
+
+                SetStrips(currentPostion);
+
+                if (birdCollider)
+                {
+                    birdCollider.enabled = true;
+                }
+
+            }
+            else
+            {
+                ResetStrips();
+            }
         }
 
         if(LaunchedBird)
         {
             L.resetTimer();
         }
+    }
+
+    
+
+    public void AIShootsBird(float x,float y)
+    {
+        currentPostion = center.position + new Vector3(-x,y,0);
+        currentPostion = center.position + Vector3.ClampMagnitude(currentPostion - center.position, maxLength);
+
+        currentPostion = ClampBoundary(currentPostion);
+
+        SetStrips(currentPostion);
+
+        if (birdCollider)
+        {
+            birdCollider.enabled = true;
+        }
+        //print("ajung ai shoot bird");
+        Invoke("Shoot", 1);
     }
 
     Vector3 ClampBoundary(Vector3 vector)
@@ -90,6 +132,10 @@ public class Slingshot : MonoBehaviour
             bird.isKinematic = true;
 
             ResetStrips();
+        }
+        else
+        {
+            Invoke("CreateBird", 1);
         }
     }
  
@@ -142,8 +188,10 @@ public class Slingshot : MonoBehaviour
     {
         lineRenderers[0].SetPosition(1, position);
         lineRenderers[1].SetPosition(1, position);
+        //print(position);
         if (bird)
         {
+            //print("bird exists");
             Vector3 dir = position - center.position;
             bird.transform.position = position + dir.normalized * birdPositionOffset;
             bird.transform.right = -dir.normalized;

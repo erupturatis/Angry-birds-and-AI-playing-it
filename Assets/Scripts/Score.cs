@@ -16,6 +16,10 @@ public class Score : MonoBehaviour
     {
         score += a;
     }
+    public void ResetScore()
+    {
+        score = 0;
+    }
 
     void Update()
     {

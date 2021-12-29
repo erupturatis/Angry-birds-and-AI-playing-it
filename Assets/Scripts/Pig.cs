@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Pig : MonoBehaviour
 {
-    private int hp = 10;
+    private int hp = 6;
     Level L;
 
     private void Awake()
@@ -16,6 +16,7 @@ public class Pig : MonoBehaviour
     {
         L.pigNumber -= 1;
         L.AddScore(500);
+        L.S.AddReward(5f);
         Destroy(gameObject);
     }
 
